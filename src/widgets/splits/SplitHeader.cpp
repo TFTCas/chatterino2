@@ -317,6 +317,20 @@ void SplitHeader::initializeLayout()
 
     this->dropdownButton_ =
         new DrawnButton(DrawnButton::Symbol::Kebab, {}, this);
+    // marker button
+    this->markerButton_ = makeWidget<LabelButton>([&](auto w) {
+        w->setText("📍");
+        w->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    });
+
+    QObject::connect(this->markerButton_, &Button::leftClicked, this, [this]() {
+        auto text = getApp()->getCommands()->execCommand(
+            "/marker",
+            this->split_->getChannel(),
+            false);
+
+        this->split_->getChannel()->sendMessage(text);
+    });
 
     /// XXX: this never gets disconnected
     QObject::connect(this->dropdownButton_, &Button::leftMousePress, this,
@@ -346,6 +360,9 @@ void SplitHeader::initializeLayout()
             w->hide();
             w->setMenu(this->createChatModeMenu());
         }),
+
+        // add marker
+        this->markerButton_,
         // moderator
         this->moderationButton_,
         // chatter list
